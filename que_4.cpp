@@ -1,61 +1,86 @@
 #include <bits/stdc++.h>
 #define ll long long
 #define x 31
-#define size 100001
+#define size 100005
 using namespace std;
 
 template <class T, class U>
 class Unordered_map
 {
   public:
-    struct node
+    class node
     {
+      public:
         T key;
         U value;
-        struct node *next;
+        class node *next;
     };
     T key;
     U value;
-    struct node *store[size];
+    class node *store[size];
 
     Unordered_map()
     {
-        ll op;
-        cout << "Press-1 to Insert" << endl;
-        cout << "Press-2 to Search" << endl;
-        cout << "Press-3 to Delete" << endl;
-        cin >> op;
-        if (op == 1)
+        for (ll i = 0; i < size; i++)
+            store[i] = NULL;
+        string op;
+        while (1)
         {
-            cout << "Enter Key" << endl;
-            cin >> key;
-            cout << "Enter value" << endl;
-            cin >> value;
-            insert();
-        }
-        else if (op == 2)
-        {
-            cout << "Enter key" << endl;
-            cin >> key;
-            pair<U, bool> ans = search();
-            if (ans.second)
-                cout << ans.first << endl;
+            cout << "Press-1 to Insert" << endl;
+            cout << "Press-2 to Search" << endl;
+            cout << "Press-3 to Delete" << endl;
+            cin >> op;
+            if (op == "1")
+            {
+                cout << "Enter Key" << endl;
+                cin >> key;
+                cout << "Enter value" << endl;
+                cin >> value;
+                pair<U, bool> ans = insert();
+                if (ans.second)
+                    cout << "Insert Successfully" << endl;
+                else
+                    cout << "Error" << endl;
+            }
+            else if (op == "2")
+            {
+                cout << "Enter key" << endl;
+                cin >> key;
+                pair<U, bool> ans = search();
+                if (ans.second)
+                    cout << "Value=" << ans.first << endl;
+                else
+                    cout << "NOT FOUND" << endl;
+            }
+            else if (op == "3")
+            {
+                cout << "Enter key" << endl;
+                cin >> key;
+                pair<U, bool> ans = delete_mp();
+                if (ans.second)
+                    cout << "Delete Successfully" << endl;
+                else
+                    cout << "NOT FOUND" << endl;
+            }
+            else if (op == "q")
+            {
+                break;
+            }
             else
-                cout << "NOT FOUND" << endl;
-        }
-        else if (op == 3)
-        {
-            cout << "Enter key" << endl;
-            cin >> key;
-            pair<U, bool> ans = delete_mp();
-            if (ans.second)
-                cout << "Delete Successfully" << endl;
-            else
-                cout << "NOT FOUND" << endl;
-        }
-        else
-        {
-            cout << "Invalid Option" << endl;
+            {
+                cout << "Invalid Option" << endl;
+            }
+            // cout << "Start" << endl;
+            // for (ll i = 0; i < size; i++)
+            // {
+            //     class node *head = store[i];
+            //     while (head != NULL)
+            //     {
+            //         cout << head->value << endl;
+            //         head = head->next;
+            //     }
+            // }
+            // cout << "Finish" << endl;
         }
     }
 
@@ -75,24 +100,27 @@ class Unordered_map
         index = index % size;
         return index;
     }
-    void insert()
+    pair<U, bool> insert()
     {
+        pair<U, bool> res;
         ll index;
         ostringstream str1;
         str1 << key;
         string k = str1.str();
         index = hashing(k);
-        struct node *new_node = new node;
+        class node *new_node = new node;
         new_node->next = NULL;
         new_node->key = key;
         new_node->value = value;
 
-        struct node *head = store[index];
+        class node *head = store[index];
 
         if (head == NULL)
         {
             head = new_node;
             store[index] = head;
+            res.second = true;
+            return res;
         }
         else
         {
@@ -108,6 +136,9 @@ class Unordered_map
             }
             if (flag == 0)
                 head->next = new_node;
+
+            res.second = true;
+            return res;
         }
     }
     pair<U, bool> search()
@@ -118,7 +149,7 @@ class Unordered_map
         str1 << key;
         string k = str1.str();
         index = hashing(k);
-        struct node *head = store[index];
+        class node *head = store[index];
         //cout<<index;
         if (head == NULL)
         {
@@ -159,7 +190,7 @@ class Unordered_map
         str1 << key;
         string k = str1.str();
         index = hashing(k);
-        struct node *head = store[index];
+        class node *head = store[index];
         if (head == NULL)
         {
             p.second = false;
@@ -190,7 +221,7 @@ class Unordered_map
             }
             else
             {
-                struct node *prev = head;
+                class node *prev = head;
                 head = head->next;
                 while (head != NULL)
                 {
@@ -212,8 +243,6 @@ class Unordered_map
 
 int main()
 {
-    while (1)
-    {
-        Unordered_map<int, string> ump;
-    }
+    Unordered_map<string, string> ump;
+    cout << "Thank You!!!" << endl;
 }
