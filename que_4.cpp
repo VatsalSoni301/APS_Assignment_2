@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #define ll long long
 #define x 31
-#define size 3
+#define size 100005
 using namespace std;
 
 template <class T, class U>
