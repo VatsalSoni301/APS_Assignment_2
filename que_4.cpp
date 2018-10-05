@@ -1,7 +1,7 @@
 #include <bits/stdc++.h>
 #define ll long long
 #define x 31
-#define size 100005
+#define size 3
 using namespace std;
 
 template <class T, class U>
@@ -40,7 +40,7 @@ class Unordered_map
                 if (ans.second)
                     cout << "Insert Successfully" << endl;
                 else
-                    cout << "Error" << endl;
+                    cout << "Already Exist" << endl;
             }
             else if (op == "2")
             {
@@ -70,17 +70,18 @@ class Unordered_map
             {
                 cout << "Invalid Option" << endl;
             }
-            // cout << "Start" << endl;
-            // for (ll i = 0; i < size; i++)
-            // {
-            //     class node *head = store[i];
-            //     while (head != NULL)
-            //     {
-            //         cout << head->value << endl;
-            //         head = head->next;
-            //     }
-            // }
-            // cout << "Finish" << endl;
+            cout << "Start" << endl;
+            for (ll i = 0; i < size; i++)
+            {
+                class node *head = store[i];
+                while (head != NULL)
+                {
+                    cout << "i=" << i << " " << head->key << " " << head->value << "  ";
+                    head = head->next;
+                }
+            }
+            cout << endl;
+            cout << "Finish" << endl;
         }
     }
 
@@ -130,12 +131,21 @@ class Unordered_map
                 if (head->key == key)
                 {
                     flag = 1;
-                    break;
+                    res.second = false;
+                    return res;
                 }
                 head = head->next;
             }
             if (flag == 0)
-                head->next = new_node;
+            {
+                if (head->key != key)
+                    head->next = new_node;
+                else
+                {
+                    res.second = false;
+                    return res;
+                }
+            }
 
             res.second = true;
             return res;
@@ -216,7 +226,7 @@ class Unordered_map
             {
                 head = head->next;
                 store[index] = head;
-                free(head);
+                //free(head);
                 p.second = true;
                 return p;
             }
@@ -229,7 +239,7 @@ class Unordered_map
                     if (head->key == key)
                     {
                         prev->next = head->next;
-                        free(head);
+                        //free(head);
                         p.second = true;
                         return p;
                     }
