@@ -214,6 +214,7 @@ class Unordered_map
                 {
                     store[index] = NULL;
                     p.second = true;
+                    free(head);
                     return p;
                 }
                 else
@@ -224,9 +225,9 @@ class Unordered_map
             }
             else if (head->key == key)
             {
-                head = head->next;
-                store[index] = head;
-                //free(head);
+                //head = head->next;
+                store[index] = head->next;
+                free(head);
                 p.second = true;
                 return p;
             }
@@ -239,7 +240,7 @@ class Unordered_map
                     if (head->key == key)
                     {
                         prev->next = head->next;
-                        //free(head);
+                        free(head);
                         p.second = true;
                         return p;
                     }
