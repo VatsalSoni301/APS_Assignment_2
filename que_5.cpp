@@ -155,14 +155,10 @@ ll kmp(const char *org, const char *sub)
         }
         else
         {
-            if (j > 0)
-            {
-                j = arr[j - 1];
-            }
-            else
-            {
+            if (j <= 0)
                 i += 1;
-            }
+            else
+                j = arr[j - 1];
         }
     }
     return -1;
