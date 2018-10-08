@@ -2,16 +2,19 @@
 #define ll long long
 using namespace std;
 
-struct suffix
+ll comparator(struct suffixNode a, struct suffixNode b);
+void suffixSort();
+
+struct suffixNode
 {
     ll index;
     ll child[2];
 };
 
-struct suffix *suffixarray;
+struct suffixNode *suffixarray;
 string input;
 
-ll comparator(struct suffix a, struct suffix b)
+ll comparator(struct suffixNode a, struct suffixNode b)
 {
     if (a.child[0] < b.child[0])
         return 1;
@@ -92,22 +95,22 @@ int main()
     ios_base::sync_with_stdio(false);
     ll i;
     cin >> input;
-    suffixarray = new struct suffix[input.size()];
+    suffixarray = new struct suffixNode[input.size()];
     suffixSort();
 
     for (i = 0; i < input.length(); i++)
     {
         cout << suffixarray[i].index << " ";
     }
-    cout<<endl;
-    for(i=suffixarray[0].index;i<input.size();i++)
+    cout << endl;
+    for (i = suffixarray[0].index; i < input.size(); i++)
     {
-        cout<<input[i];
+        cout << input[i];
     }
-    for(i=0;i<suffixarray[0].index;i++)
+    for (i = 0; i < suffixarray[0].index; i++)
     {
-        cout<<input[i];
+        cout << input[i];
     }
-    cout<<endl;
+    cout << endl;
     return 0;
 }

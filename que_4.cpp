@@ -256,6 +256,7 @@ class Unordered_map
 
 int main()
 {
+    ios_base::sync_with_stdio(false);
     Unordered_map<string, string> ump;
     cout << "Thank You!!!" << endl;
 }
