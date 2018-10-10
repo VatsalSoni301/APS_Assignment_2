@@ -7,8 +7,8 @@ void suffixSort();
 
 struct suffixNode
 {
-    ll position;
-    ll child[2];
+    ll position;    // to store original position of suffix string in suffix array.
+    ll child[2];    // help to sort suffix array based on first child and next child.
 };
 
 struct suffixNode *suffixarray;
