@@ -22,7 +22,7 @@ ll comparator(struct suffixNode a, struct suffixNode b)
         return 0;
     else
     {
-        if (a.child[1] < b.child[1])
+        if (a.child[1] <= b.child[1])
             return 1;
         else
             return 0;
@@ -110,40 +110,54 @@ void suffixSort()
         // sorting based on child and next child.
         sort(suffixarray, suffixarray + size, comparator);
     }
+
+    return;
 }
 
 int main()
 {
     ios_base::sync_with_stdio(false);
-    ll i, f = 0, pos;
+    ll i, f = 0, pos, n, k, j, count = 0, max = -9999;
     cin >> input;
-    input = input + input;
-    suffixarray = new struct suffixNode[input.size()];
+    cin >> k;
+    n = input.size();
+    suffixarray = new struct suffixNode[n];
     suffixSort();
 
-    // find the first suffix string which is lexicographic smallest string.
-    // to find that traverse array and get the first position which is smaller than length of string.
-    // which is always lexi. smallest.
-    for (i = 0; i < input.length(); i++)
+    // get longest common prefix which is longest substring.
+    for (i = 0; i < n - k + 1; i++)
     {
-        cout << suffixarray[i].position << " ";
-        if (suffixarray[i].position < input.size() / 2 && f == 0)
+        count = 0;
+        string s = input.substr(suffixarray[i].position);
+        string s1 = input.substr(suffixarray[i + k - 1].position);
+        if (s.length() < s1.length())
         {
-            pos = suffixarray[i].position;
-            f = 1;
+            for (j = 0; j < s.length(); j++)
+            {
+                if (s[j] == s1[j])
+                    count++;
+                else
+                    break;
+            }
         }
-    }
-    cout << endl;
-    // print that suffix first and then print the remaining string.
-    for (i = pos; i < input.size() / 2; i++)
-    {
-        cout << input[i];
-    }
-    for (i = 0; i < pos; i++)
-    {
-        cout << input[i];
+        else
+        {
+            for (j = 0; j < s1.length(); j++)
+            {
+                if (s[j] == s1[j])
+                    count++;
+                else
+                    break;
+            }
+        }
+        if (max < count)
+            max = count;
     }
 
-    cout << endl;
+    if (max == 0)
+        cout << -1 << endl;
+    else
+        cout << max << endl;
+
     return 0;
 }
