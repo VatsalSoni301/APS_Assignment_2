@@ -1,14 +1,20 @@
 #include <bits/stdc++.h>
 #define ll long long
-#define maxkey 2
+#define degree 4
 using namespace std;
 
-ll minkey, searchflag;
+// B-tree visualization
+// https://www.cs.usfca.edu/~galles/visualization/BTree.html
+
+// B-tree code
+// http://see-programming.blogspot.com/2013/05/insertion-deletion-and-traversal-in-b.html
+
+ll maxkey, minkey, searchflag;
 
 struct BNode
 {
-    ll keys[maxkey + 1], count;      // count=no of keys present in node , keys array
-    struct BNode *child[maxkey + 1]; // child pointer array
+    ll keys[degree], len;        // len=no of keys present in node , keys array
+    struct BNode *child[degree]; // child pointer array
 };
 
 struct BNode *root;
@@ -45,7 +51,7 @@ struct BNode *createNode(ll key, struct BNode *child)
     newNode->child[0] = root;
     newNode->child[1] = child;
     newNode->keys[1] = key;
-    newNode->count = 1;
+    newNode->len = 1;
     return newNode;
 }
 
@@ -87,9 +93,9 @@ void split(ll *previous, ll val, ll nodepos, struct BNode *child, struct BNode *
         (*newNode)->child[k - mid] = node->child[k];
         k++;
     }
-    node->count = mid;
-    (*newNode)->count = maxkey - mid;
-    //cout << "inside split new node count" << (maxkey - mid) << endl;
+    node->len = mid;
+    (*newNode)->len = maxkey - mid;
+    //cout << "inside split new node len" << (maxkey - mid) << endl;
     if (nodepos <= minkey) // if cond. true insert new key to current node.
     {
         insertvalue(nodepos, val, child, node);
@@ -98,18 +104,18 @@ void split(ll *previous, ll val, ll nodepos, struct BNode *child, struct BNode *
     {
         insertvalue(nodepos - mid, val, child, *newNode);
     }
-    *previous = node->keys[node->count];             // mid value store in prev. that will be there in new root node.
-    (*newNode)->child[0] = node->child[node->count]; // right link of root copy to left link of its right child.
-    node->count--;
-    //cout << "inside split node->count" << node->count << endl;
+    *previous = node->keys[node->len];             // mid value store in prev. that will be there in new root node.
+    (*newNode)->child[0] = node->child[node->len]; // right link of root copy to left link of its right child.
+    node->len--;
+    //cout << "inside split node->len" << node->len << endl;
 }
 
 // add value to the node in appropriate position and do right shift if require.
 void insertvalue(ll nodepos, ll key, struct BNode *child, struct BNode *tmp)
 {
-    ll k = tmp->count;
+    ll k = tmp->len;
     //cout << "inside insertvalue key" << key << endl;
-    //cout << "inside insertvalue key count" << tmp->count << endl;
+    //cout << "inside insertvalue key len" << tmp->len << endl;
     while (k > nodepos) //right shift
     {
         tmp->keys[k + 1] = tmp->keys[k];
@@ -119,8 +125,8 @@ void insertvalue(ll nodepos, ll key, struct BNode *child, struct BNode *tmp)
     //cout << "inside insertvalue right shift " << k << endl;
     tmp->keys[k + 1] = key;
     tmp->child[k + 1] = child;
-    tmp->count++;
-    //cout << "inside insertvalue tmp->count" << tmp->count << endl;
+    tmp->len++;
+    //cout << "inside insertvalue tmp->len" << tmp->len << endl;
 }
 
 // goto correct node (in depth find respected node then add/split node)
@@ -140,7 +146,7 @@ ll inserthelper(ll key, ll *previous, struct BNode **child, struct BNode *tmp)
     }
     else
     { //find position of new key (where can it seat?--we find it from right side.)
-        nodepos = tmp->count;
+        nodepos = tmp->len;
         //cout << "inside inserthelper" << nodepos << endl;
         while (key < tmp->keys[nodepos] && nodepos > 1)
         {
@@ -154,9 +160,9 @@ ll inserthelper(ll key, ll *previous, struct BNode **child, struct BNode *tmp)
     }
     if (inserthelper(key, previous, child, tmp->child[nodepos]))
     {
-        //cout << "inside inserthelper" << tmp->count << endl;
-        if (tmp->count < maxkey) // checking whether new key can accomodate into current node.
-        {                        // if yes we will insert new key to current node.
+        //cout << "inside inserthelper" << tmp->len << endl;
+        if (tmp->len < maxkey) // checking whether new key can accomodate into current node.
+        {                      // if yes we will insert new key to current node.
             insertvalue(nodepos, *previous, *child, tmp);
         }
         else
@@ -174,7 +180,7 @@ void printElements(struct BNode *tmp)
     if (tmp)
     {
         ll i; // call for all childrean.
-        for (i = 0; i < tmp->count; i++)
+        for (i = 0; i < tmp->len; i++)
         {
             printElements(tmp->child[i]);
             cout << tmp->keys[i + 1] << " ";
@@ -201,7 +207,7 @@ ll searchkey(ll key, struct BNode *tmp)
     else
     {
         // find it position from right side.
-        nodepos = tmp->count;
+        nodepos = tmp->len;
         while (nodepos > 1 && key < tmp->keys[nodepos])
         {
             nodepos--;
@@ -228,8 +234,8 @@ void deletekey(ll key, struct BNode *tmp)
     }
     else
     {
-        // If root node count is zero then delete root node and first child will become root.
-        if (tmp->count == 0)
+        // If root node len is zero then delete root node and first child will become root.
+        if (tmp->len == 0)
         {
             freenode = tmp;
             tmp = tmp->child[0];
@@ -254,7 +260,7 @@ ll deletehelper(ll key, struct BNode *tmp)
         else
         {
             // else find position in the node.
-            nodepos = tmp->count;
+            nodepos = tmp->len;
             while (nodepos > 1 && key < tmp->keys[nodepos])
             {
                 nodepos--;
@@ -289,9 +295,9 @@ ll deletehelper(ll key, struct BNode *tmp)
         { // flag=0 do recursion to go to next level to find node.
             flag = deletehelper(key, tmp->child[nodepos]);
         }
-        if (tmp->child[nodepos])
-        {
-            if (tmp->child[nodepos]->count < minkey)
+        if (tmp->child[nodepos]) // check whether child exist or not
+        {                        // If exist then check its degree, if it is lower then minkey then need to balance node.
+            if (tmp->child[nodepos]->len < minkey)
                 balanceNode(nodepos, tmp);
         }
     }
@@ -301,43 +307,43 @@ ll deletehelper(ll key, struct BNode *tmp)
 void deletevalue(ll nodepos, struct BNode *tmp)
 {
     ll i = nodepos + 1;
-    while (i <= tmp->count) // left shift of all keys which are present after key which is going to delete.
+    while (i <= tmp->len) // left shift of all keys which are present after key which is going to delete.
     {
         tmp->keys[i - 1] = tmp->keys[i];
         tmp->child[i - 1] = tmp->child[i];
         i++;
     }
-    tmp->count--; //deletion key done, now decrement count of that node.
+    tmp->len--; //deletion key done, now decrement len of that node.
 }
 
 void balanceNode(ll nodepos, struct BNode *tmp)
 {
-    if (!nodepos)
+    if (!nodepos) // check whether delete key is on first position(nodepos=0)
     {
-        if (tmp->child[1]->count > minkey)
+        if (tmp->child[1]->len > minkey) // child has enaugh keys then left rotate to balance
         {
             leftrotate(1, tmp);
         }
-        else
+        else // If not then merge.
         {
             merge(1, tmp);
         }
     }
     else
     {
-        if (tmp->count != nodepos)
+        if (tmp->len != nodepos) // check whether delete key is on last position
         {
-            if (tmp->child[nodepos - 1]->count > minkey)
+            if (tmp->child[nodepos - 1]->len > minkey) // left child has enaugh keys then right rotate.
             {
                 rightRotate(nodepos, tmp);
             }
             else
             {
-                if (tmp->child[nodepos + 1]->count > minkey)
+                if (tmp->child[nodepos + 1]->len > minkey) // check same for right child.
                 {
                     leftrotate(nodepos + 1, tmp);
                 }
-                else
+                else // if both do not have.. merge them.
                 {
                     merge(nodepos, tmp);
                 }
@@ -345,7 +351,7 @@ void balanceNode(ll nodepos, struct BNode *tmp)
         }
         else
         {
-            if (tmp->child[nodepos - 1]->count > minkey)
+            if (tmp->child[nodepos - 1]->len > minkey)
                 rightRotate(nodepos, tmp);
             else
                 merge(nodepos, tmp);
@@ -356,68 +362,82 @@ void balanceNode(ll nodepos, struct BNode *tmp)
 void merge(ll nodepos, struct BNode *tmp)
 {
     ll j = 1;
-    struct BNode *right = tmp->child[nodepos];
-    struct BNode *left = tmp->child[nodepos - 1];
+    struct BNode *right = tmp->child[nodepos];    // get right child
+    struct BNode *left = tmp->child[nodepos - 1]; // get left child.
 
-    left->count++;
-    left->keys[left->count] = tmp->keys[nodepos];
-    //left->child[left->count] = tmp->child[0];
+    left->len++;
+    left->keys[left->len] = tmp->keys[nodepos]; // copy key from root node to left child.
+    //left->child[left->len] = tmp->child[0];
 
-    while (j <= right->count)
+    // copy all the keys from right node to left node and then delete right node.
+    while (j <= right->len)
     {
-        left->count++;
-        left->keys[left->count] = right->keys[j];
-        left->child[left->count] = right->child[j];
+        left->len++;
+        left->keys[left->len] = right->keys[j];
+        left->child[left->len] = right->child[j];
         j++;
     }
 
     j = nodepos;
-    while (j < tmp->count)
+    // ex-- if key deleted from first pos then need to do left shift of all keys which
+    //are present after the key which is going to delete.
+    while (j < tmp->len)
     {
         tmp->keys[j] = tmp->keys[j + 1];
         tmp->child[j] = tmp->child[j + 1];
         j++;
     }
-    tmp->count--;
+    tmp->len--;
     free(right);
 }
 
 void rightRotate(ll nodepos, struct BNode *tmp)
 {
-    struct BNode *next = tmp->child[nodepos];
-    ll j = next->count;
+    struct BNode *right = tmp->child[nodepos];    // right child
+    struct BNode *left = tmp->child[nodepos - 1]; // left child
+    ll j = right->len;
+
+    // right shift all the keys of that node , then copy root node key to the fist
+    // empty slot(just created because if right shift).
 
     while (j > 0)
     {
-        next->keys[j + 1] = next->keys[j];
-        next->child[j + 1] = next->child[j];
+        right->keys[j + 1] = right->keys[j];
+        right->child[j + 1] = right->child[j];
+        j--;
     }
+    // copy root node key to right child.
+    right->keys[1] = tmp->keys[nodepos];
+    right->child[1] = right->child[0];
 
-    next->keys[1] = tmp->keys[nodepos];
-    next->child[1] = next->child[0];
-    next->count++;
-    next = tmp->child[nodepos - 1];
-    tmp->keys[nodepos] = next->keys[next->count];
-    tmp->child[nodepos] = next->child[next->count];
-    next->count--;
+    right->len++;
+    // copy leftchild key to root node. and delete it from left child.
+    tmp->keys[nodepos] = left->keys[left->len];
+    right->child[0] = tmp->child[nodepos - 1]->child[left->len];
+    left->len--;
     return;
 }
 
 void leftrotate(ll nodepos, struct BNode *tmp)
 {
     ll j = 1;
-    struct BNode *preceder = tmp->child[nodepos - 1];
+    struct BNode *preceder = tmp->child[nodepos - 1]; // left child
+    // increase length of left child and copy root key and its link to left child.
 
-    preceder->count++;
-    preceder->keys[preceder->count] = tmp->keys[nodepos];
-    preceder->child[preceder->count] = tmp->child[nodepos]->child[0];
+    preceder->len++;
+    preceder->keys[preceder->len] = tmp->keys[nodepos];
+    preceder->child[preceder->len] = tmp->child[nodepos]->child[0];
 
-    preceder = tmp->child[nodepos];
+    // make right child as precedor and then copy first element and link of right child
+    // to root node. then one key deleted from right child so decrease length.
+
+    preceder = tmp->child[nodepos]; // right child
     tmp->keys[nodepos] = preceder->keys[1];
     preceder->child[0] = preceder->child[1];
-    preceder->count--;
+    preceder->len--;
 
-    while (j <= preceder->count)
+    // then left shift all keys and childs of right child of root node(new precedor).
+    while (j <= preceder->len)
     {
         preceder->keys[j] = preceder->keys[j + 1];
         preceder->child[j] = preceder->child[j + 1];
@@ -429,7 +449,7 @@ void leftrotate(ll nodepos, struct BNode *tmp)
 void findsuccessor(ll nodepos, struct BNode *tmp)
 {
     struct BNode *succ;
-
+    // find successor of a key and copy it in root. then go to that successor and delete it.
     for (succ = tmp->child[nodepos]; succ->child[0] != NULL;)
         succ = succ->child[0];
     tmp->keys[nodepos] = succ->keys[1];
@@ -438,9 +458,12 @@ void findsuccessor(ll nodepos, struct BNode *tmp)
 int main()
 {
     ios_base::sync_with_stdio(false);
+    maxkey = degree - 1;
     minkey = maxkey / 2;
+
     //cout << "minKey=" << minkey << endl;
     //cout << "maxKey=" << maxkey << endl;
+
     ll value, choice;
     do
     {

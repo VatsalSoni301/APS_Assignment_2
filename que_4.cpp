@@ -29,6 +29,7 @@ class Unordered_map
             cout << "Press-1 to Insert" << endl;
             cout << "Press-2 to Search" << endl;
             cout << "Press-3 to Delete" << endl;
+            cout << "Press-q to quit" << endl;
             cin >> op;
             if (op == "1")
             {
@@ -70,19 +71,19 @@ class Unordered_map
             {
                 cout << "Invalid Option" << endl;
             }
-            cout << "Start" << endl;
-            for (ll i = 0; i < size; i++)
-            {
-                class node *head = store[i];
-                while (head != NULL)
-                {
-                    cout << "i=" << i << " " << head->key << " " << head->value << "  ";
-                    head = head->next;
-                }
-            }
-            cout << endl;
-            cout << "Finish" << endl;
         }
+            // cout << "Start" << endl;
+            // for (ll i = 0; i < size; i++)
+            // {
+            //     class node *head = store[i];
+            //     while (head != NULL)
+            //     {
+            //         cout << "i=" << i << " " << head->key << " " << head->value << "  ";
+            //         head = head->next;
+            //     }
+            // }
+            // cout << endl;
+            // cout << "Finish" << endl;
     }
 
     ll hashing(string k)
@@ -101,6 +102,7 @@ class Unordered_map
         index = index % size;
         return index;
     }
+
     pair<U, bool> insert()
     {
         pair<U, bool> res;
@@ -151,6 +153,7 @@ class Unordered_map
             return res;
         }
     }
+
     pair<U, bool> search()
     {
         pair<U, bool> res;
@@ -191,6 +194,7 @@ class Unordered_map
             }
         }
     }
+
     pair<U, bool> delete_mp()
     {
 

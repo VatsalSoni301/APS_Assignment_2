@@ -137,9 +137,34 @@ ll kmp(const char *org, const char *sub)
     ll arr[sublen];
     ll i = 0;
     ll j = 0;
+    arr[0] = 0;
+    ll f = 0;
+    i = 1;
+    while (i < sublen)
+    {
+        if (sub[i] == sub[f])
+        {
+            f++;
+            arr[i] = f;
+            i++;
+        }
+        else
+        {
+            if (f != 0)
+            {
+                f = arr[f - 1];
+            }
+            else
+            {
+                arr[i] = 0;
+                i++;
+            }
+        }
+    }
+    i = 0;
 
-    for (ll k = 0; k < sublen; k++)
-        arr[k] = 0;
+    //for (ll k = 0; k < sublen; k++)
+    //cout << arr[k] << " ";
 
     while (i < orglen)
     {
@@ -161,12 +186,13 @@ ll kmp(const char *org, const char *sub)
                 j = arr[j - 1];
         }
     }
+
     return -1;
 }
 
 ll findSubstring(StringBuilder s, const char *a)
 {
-    traverse(s);
+    s = traverse(s);
     const char *finalstring = s.head->str;
     ll index = kmp(finalstring, a);
     return index;
@@ -174,6 +200,7 @@ ll findSubstring(StringBuilder s, const char *a)
 
 int main()
 {
+    ios_base::sync_with_stdio(false);
     StringBuilder s1 = stringInitialize("Hello");
     StringBuilder s2 = stringInitialize("World");
     StringBuilder s3 = stringAppend(s1, s2);
@@ -181,36 +208,42 @@ int main()
     s3 = traverse(s3);
     s1 = stringAppend(s1, s2);
     cout << "----s1----" << endl;
-    traverse(s1);
+    s1 = traverse(s1);
     cout << "----s3----" << endl;
-    traverse(s3);
+    s3 = traverse(s3);
     StringBuilder s4 = StringBuilder("ABCD");
     s4 = stringAppend(s4, s2);
     cout << "----s4----" << endl;
-    traverse(s4);
+    s4 = traverse(s4);
     s3 = stringAppend(s4, s3);
     cout << "----s3----" << endl;
-    traverse(s3);
+    s3 = traverse(s3);
     StringBuilder rj;
     StringBuilder vs;
     StringBuilder x = stringAppend(rj, vs);
     cout << "----x----" << endl;
-    traverse(x);
+    x = traverse(x);
     x = stringAppend(x, s1);
     cout << "----x----" << endl;
-    traverse(x);
+    x = traverse(x);
     StringBuilder w;
     StringBuilder y = stringAppend(s1, w);
     cout << "----y----" << endl;
-    traverse(y);
+    y = traverse(y);
     y = stringAppend(y, s4);
     cout << "----y----" << endl;
-    traverse(y);
+    y = traverse(y);
     x = stringAppend(x, y);
     cout << "----x----" << endl;
-    traverse(x);
-    //traverse(x);
-    ll index = findSubstring(s3, "Wor");
+    x = traverse(x);
+
+    ll index = findSubstring(s3, "abcabcdab");
+    if (index == -1)
+        cout << "Not found" << endl;
+    else
+        cout << "index=" << index << endl;
+
+    index = findSubstring(s3, "Wor");
     if (index == -1)
         cout << "Not found" << endl;
     else

@@ -1,7 +1,10 @@
 #include <bits/stdc++.h>
 #define ll long long
 using namespace std;
+
 ll partition(vector<ll> &arr, ll low, ll high);
+void find_nth(vector<ll> &arr, ll low, ll high, ll k);
+
 void find_nth(vector<ll> &arr, ll low, ll high, ll k)
 {
 	ll mid;
@@ -68,7 +71,7 @@ int main()
 	cout << "mine=" << 1.0 * (end1 - start1) / CLOCKS_PER_SEC << endl;
 	cout << "org=" << 1.0 * (end - start) / CLOCKS_PER_SEC << endl;
 
-	// cout<<"SOrted"<<endl;
+	// cout<<"Sorted"<<endl;
 	// for(i=0;i<arr.size();i++)
 	// 	cout<<arr[i]<<endl;
 }
