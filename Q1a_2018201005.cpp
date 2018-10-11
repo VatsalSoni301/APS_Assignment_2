@@ -2,27 +2,26 @@
 #define ll long long
 using namespace std;
 
-ll comparator(struct suffixNode a, struct suffixNode b);
+ll comparator(pair<ll, pair<ll, ll>> a, pair<ll, pair<ll, ll>> b);
 void suffixSort();
 
-struct suffixNode
-{
-    ll position; // to store original position of suffix string in suffix array.
-    ll child[2]; // help to sort suffix array based on first child and next child.
-};
-
-struct suffixNode *suffixarray;
+pair<ll, pair<ll, ll>> *suffixarray;
+ll inputlen;
 string input;
 
-ll comparator(struct suffixNode a, struct suffixNode b)
+ll comp(pair<ll, pair<ll, ll>> a, pair<ll, pair<ll, ll>> b)
 {
-    if (a.child[0] < b.child[0])
+    ll f = a.second.first;
+    ll n = a.second.second;
+    ll f1 = b.second.first;
+    ll n1 = b.second.second;
+    if (f < f1)
         return 1;
-    else if (a.child[0] > b.child[0])
+    else if (f > f1)
         return 0;
     else
     {
-        if (a.child[1] < b.child[1])
+        if (n <= n1)
             return 1;
         else
             return 0;
@@ -31,84 +30,62 @@ ll comparator(struct suffixNode a, struct suffixNode b)
 
 void suffixSort()
 {
-    ll i, j, k, size;
-    size = input.length();
-    ll index[size];
-
-    // store initial postion of suffix string in suffix array
-    // and store child and next child based on first and second char.
-
-    for (i = 0; i < size; i++)
+    ll i, j;
+    for (i = 0; i < inputlen; i++)
     {
-        suffixarray[i].position = i;
-        suffixarray[i].child[0] = input[i] - '0';
-        if (i + 1 < size)
+        suffixarray[i].first = i;
+        suffixarray[i].second.first = input[i] - '0';
+        if (i + 1 < inputlen)
         {
-            suffixarray[i].child[1] = input[i + 1] - '0';
+            suffixarray[i].second.second = input[i + 1] - '0';
         }
         else
-        {
-            suffixarray[i].child[1] = -1;
-        }
+            suffixarray[i].second.second = -1;
     }
 
-    // sort the initial suffix array base on first child and
-    // if first child is same then sort based on next child.
+    sort(suffixarray, suffixarray + inputlen, comp);
+    ll index[inputlen];
 
-    sort(suffixarray, suffixarray + size, comparator);
-
-    // we have got sorted suffix array based on first two char.
-    // now continue this process for first 2 char,4 char,8 char till the end of string.
-
-    for (j = 2; j < size; j = j * 2)
+    for (i = 2; i < inputlen; i = i * 2)
     {
-        index[suffixarray[0].position] = 0;
-        ll before = suffixarray[0].child[0];
         ll current = 0;
-        suffixarray[0].child[0] = current;
+        ll previous = suffixarray[0].second.first;
+        suffixarray[0].second.first = current;
+        index[suffixarray[0].first] = 0;
 
-        // calculate child.
-        // if both child and next child are same for current and previos suffix string
-        // then make child same as previous suffix string child.
-        // else store current string child as previous child + 1.
-        for (k = 1; k < size; k++)
+        for (j = 1; j < inputlen; j++)
         {
-            if (suffixarray[k].child[0] == before && suffixarray[k].child[1] == suffixarray[k - 1].child[1])
+            ll prevnext = suffixarray[j].second.second;
+            ll prevprev = suffixarray[j - 1].second.second;
+            ll prev = suffixarray[j].second.first;
+            if (prevnext == prevprev && previous == prev)
             {
-                before = suffixarray[k].child[0];
-                suffixarray[k].child[0] = current;
+                previous = prev;
+                suffixarray[j].second.first = current;
             }
             else
             {
-                before = suffixarray[k].child[0];
-                suffixarray[k].child[0] = current + 1;
-                current++;
+                previous = prev;
+                suffixarray[j].second.first = ++current;
             }
-
-            index[suffixarray[k].position] = k;
+            index[suffixarray[j].first] = j;
         }
 
-        // calculate next child.
-        // get child of a suffix string and add j which is number of char that you are
-        // examining and get the position of the suffix string which has distance j
-        // then find its original index and get child which is a next rank of current
-        // suffix string.
-        for (k = 0; k < size; k++)
+        for (j = 0; j < inputlen; j++)
         {
-            ll child_1 = suffixarray[k].position + j;
-            if (child_1 < size)
+            ll child_1 = suffixarray[j].first + i;
+            if (child_1 < inputlen)
             {
                 ll in = index[child_1];
-                suffixarray[k].child[1] = suffixarray[in].child[0];
+                suffixarray[j].second.second = suffixarray[in].second.first;
             }
             else
             {
-                suffixarray[k].child[1] = -1;
+                suffixarray[j].second.second = -1;
             }
         }
 
-        // sorting based on child and next child.
-        sort(suffixarray, suffixarray + size, comparator);
+        sort(suffixarray, suffixarray + inputlen, comp);
     }
 }
 
@@ -118,23 +95,21 @@ int main()
     ll i, f = 0, pos;
     cin >> input;
     input = input + input;
-    suffixarray = new struct suffixNode[input.size()];
+    inputlen = input.size();
+    suffixarray = new pair<ll, pair<ll, ll>>[inputlen];
     suffixSort();
 
-    // find the first suffix string which is lexicographic smallest string.
-    // to find that traverse array and get the first position which is smaller than length of string.
-    // which is always lexi. smallest.
     for (i = 0; i < input.length(); i++)
     {
-        cout << suffixarray[i].position << " ";
-        if (suffixarray[i].position < input.size() / 2 && f == 0)
+        cout << suffixarray[i].first << " ";
+        if (suffixarray[i].first < input.size() / 2 && f == 0)
         {
-            pos = suffixarray[i].position;
+            pos = suffixarray[i].first;
             f = 1;
         }
     }
     cout << endl;
-    // print that suffix first and then print the remaining string.
+    
     for (i = pos; i < input.size() / 2; i++)
     {
         cout << input[i];

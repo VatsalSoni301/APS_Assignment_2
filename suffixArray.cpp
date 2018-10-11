@@ -2,81 +2,83 @@
 #define ll long long
 using namespace std;
 
-struct suffixnode
-{
-    ll position;
-    ll child[2];
-};
-
-struct suffixnode *suffixarray;
+pair<ll, pair<ll, ll>> *suffixarray;
 ll inputlen;
 string input;
 
-ll comp(struct suffixnode a, struct suffixnode b)
+ll comp(pair<ll, pair<ll, ll>> a, pair<ll, pair<ll, ll>> b)
 {
-    if (a.child[0] < b.child[0])
+    ll f = a.second.first;
+    ll n = a.second.second;
+    ll f1 = b.second.first;
+    ll n1 = b.second.second;
+    if (f < f1)
         return 1;
-    else if (a.child[0] > b.child[0])
+    else if (f > f1)
         return 0;
     else
     {
-        if (a.child[1] <= b.child[1])
+        if (n <= n1)
             return 1;
         else
             return 0;
     }
 }
 
-void suffixsort()
+void suffixSort()
 {
     ll i, j;
     for (i = 0; i < inputlen; i++)
     {
-        suffixarray[i].position = i;
-        suffixarray[i].child[0] = input[i] - '0';
+        suffixarray[i].first = i;
+        suffixarray[i].second.first = input[i] - '0';
         if (i + 1 < inputlen)
         {
-            suffixarray[i].child[1] = input[i + 1] - '0';
+            suffixarray[i].second.second = input[i + 1] - '0';
         }
         else
-            suffixarray[i].child[1] = -1;
+            suffixarray[i].second.second = -1;
     }
 
     sort(suffixarray, suffixarray + inputlen, comp);
+    ll index[inputlen];
 
     for (i = 2; i < inputlen; i = i * 2)
     {
-        ll index[inputlen];
         ll current = 0;
-        ll previous = suffixarray[0].child[0];
-        suffixarray[0].child[0] = current;
-        index[suffixarray[0].position] = 0;
+        ll previous = suffixarray[0].second.first;
+        suffixarray[0].second.first = current;
+        index[suffixarray[0].first] = 0;
 
         for (j = 1; j < inputlen; j++)
         {
-            if (suffixarray[j].child[1] == suffixarray[j - 1].child[1] && previous == suffixarray[j].child[0])
+            ll prevnext = suffixarray[j].second.second;
+            ll prevprev = suffixarray[j - 1].second.second;
+            ll prev = suffixarray[j].second.first;
+            if (prevnext == prevprev && previous == prev)
             {
-                previous = suffixarray[j].child[0];
-                suffixarray[j].child[0] = current;
+                previous = prev;
+                suffixarray[j].second.first = current;
             }
             else
             {
-                previous = suffixarray[j].child[0];
-                suffixarray[j].child[0] = ++current;
+                previous = prev;
+                suffixarray[j].second.first = ++current;
             }
-            index[suffixarray[j].position] = i;
+            index[suffixarray[j].first] = j;
         }
 
         for (j = 0; j < inputlen; j++)
         {
-            ll child_1 = suffixarray[j].position + i;
+            ll child_1 = suffixarray[j].first + i;
             if (child_1 < inputlen)
             {
-                suffixarray[j].child[1] = suffixarray[index[child_1]].child[0];
+                ll in = index[child_1];
+                suffixarray[j].second.second = suffixarray[in].second.first;
             }
             else
             {
-                suffixarray[j].child[1] = -1;
+                suffixarray[j].second.second = -1;
             }
         }
 
@@ -89,9 +91,9 @@ int main()
     ll i;
     cin >> input;
     inputlen = input.size();
-    suffixarray = new struct suffixnode[inputlen];
-    suffixsort();
-    for(i=0;i<inputlen;i++)
-        cout<<suffixarray[i].position<<" ";
+    suffixarray = new pair<ll, pair<ll, ll>>[inputlen];
+    suffixSort();
+    for (i = 0; i < inputlen; i++)
+        cout << suffixarray[i].first << " ";
     return 0;
 }
